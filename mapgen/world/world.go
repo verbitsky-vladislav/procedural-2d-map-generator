@@ -44,11 +44,11 @@ type Config struct {
 
 type World struct {
 	Width, Height int64
-	Seed          []int64
+	Seed          int
 	Matrix        [][]biome.Data // todo rewrite from T to something else
 }
 
-func NewWorld(matrix [][]biome.Data, seed []int64) *World {
+func NewWorld(matrix [][]biome.Data, seed int) *World {
 	// Проверка на пустую матрицу и пустые строки
 	if len(matrix) == 0 || len(matrix[0]) == 0 {
 		// В случае пустой матрицы или пустых строк, можно вернуть мир с размерами 0x0

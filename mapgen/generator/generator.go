@@ -5,13 +5,14 @@ import (
 	"tilemap-generator/mapgen/biome"
 	"tilemap-generator/mapgen/utils"
 	"tilemap-generator/mapgen/world"
+	"time"
 )
 
 type WorldGeneratorParams struct {
-	Seed     []int64
-	SeedSize int64
-	OffsetX  int64
-	OffsetY  int64
+	Seed      int
+	OffsetX   int64
+	OffsetY   int64
+	Frequency float64
 }
 
 type WorldGenerator struct {
@@ -55,31 +56,25 @@ func (wg *WorldGenerator) PeakBiome(height float64) *biome.WorldBiome {
 }
 
 func (wg *WorldGenerator) Generate(params WorldGeneratorParams) *world.World {
-	// Проверяем на nil или пустой срез для seed
 	currentSeed := params.Seed
-	if len(currentSeed) == 0 {
-		currentSeed = utils.Seed(params.SeedSize)
-	} else {
+	if currentSeed == 0 {
+		currentSeed = int(time.Now().Unix())
 	}
 
-	// Создаем матрицу
-	matrix := make([][]biome.Data, wg.Config.Height) // Создаем внешний срез (по числу строк)
+	matrix := make([][]biome.Data, wg.Config.Height)
 
-	perlin := utils.Perlin{}
+	// NOISE SETTINGS
+	var noise = utils.New[float64]()
+	noise.NoiseType(utils.OpenSimplex2S)
+	noise.Seed = currentSeed
+	noise.Frequency = params.Frequency
 
-	// Генерация карты
 	for y := int64(0); y < wg.Config.Height; y++ {
-		matrix[y] = make([]biome.Data, wg.Config.Width) // Инициализируем строку
+		matrix[y] = make([]biome.Data, wg.Config.Width)
 		for x := int64(0); x < wg.Config.Width; x++ {
-			// Генерация высоты для каждой клетки
-			height := perlin.Generate(utils.PerlinParameters{
-				Seed:   currentSeed,
-				X:      x + params.OffsetX,
-				Y:      y + params.OffsetY,
-				Config: wg.Config,
-			})
+			height := noise.Noise2D(int(x+params.OffsetX), int(y+params.OffsetY))
+			height = (height + 1) / 2
 
-			// Определяем биом для данной высоты
 			b := wg.PeakBiome(height)
 			if b != nil {
 				matrix[y][x] = b.Data
@@ -87,6 +82,5 @@ func (wg *WorldGenerator) Generate(params WorldGeneratorParams) *world.World {
 		}
 	}
 
-	// Возвращаем новый мир
 	return world.NewWorld(matrix, currentSeed)
 }

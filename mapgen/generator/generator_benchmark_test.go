@@ -3,8 +3,8 @@ package generator
 import (
 	"fmt"
 	"testing"
-	"tilemap-generator/mapgen/utils"
 	"tilemap-generator/mapgen/world"
+	"time"
 )
 
 // Параметры для бенчмарка
@@ -19,7 +19,7 @@ var wgConfig = world.Config{
 }
 var worldGen = &WorldGenerator{Config: wgConfig}
 
-var currentSeed = utils.Seed(16)
+var currentSeed = int(time.Now().Unix())
 
 // BenchmarkGenerateWorld бенчмарк для генерации мира с разными размерами матрицы
 func BenchmarkGenerateWorld(b *testing.B) {
@@ -35,10 +35,9 @@ func BenchmarkGenerateWorld(b *testing.B) {
 
 		// Настраиваем параметры генерации
 		params := WorldGeneratorParams{
-			Seed:     currentSeed,
-			OffsetX:  0,
-			OffsetY:  0,
-			SeedSize: 16, // Размер сида, если он пустой
+			Seed:    currentSeed,
+			OffsetX: 0,
+			OffsetY: 0,
 		}
 		b.Run(fmt.Sprintf("WorldSize_%dx%d", size.width, size.height), func(b *testing.B) {
 

@@ -143,16 +143,9 @@ func generateSeededInt64Slice(size int, seed int64) []int64 {
 
 func main() {
 	cfg := world.Config{
-		Width:                1000,
-		Height:               1000,
-		FrequencyChange:      0.30,
-		BorderSmoothness:     0.50,
-		HeightRedistribution: 1.00,
-		Falloff:              0.00,
-		HeightAveraging:      true,
+		Width:  1000,
+		Height: 1000,
 	}
-
-	seed := time.Now().Unix()
 
 	g := generator.NewGenerator(cfg, make([]biome.WorldBiome, 0))
 
@@ -162,10 +155,10 @@ func main() {
 	}
 
 	w := g.Generate(generator.WorldGeneratorParams{
-		Seed:     generateSeededInt64Slice(512, seed),
-		SeedSize: 512,
-		OffsetX:  0,
-		OffsetY:  0,
+		Seed:      int(time.Now().Unix()),
+		OffsetX:   0,
+		OffsetY:   0,
+		Frequency: 0.004,
 	})
 
 	img := image.CreateImageFromWorld(w)
